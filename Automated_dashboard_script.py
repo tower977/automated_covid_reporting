@@ -74,3 +74,32 @@ clean_df = clean_df.set_index("County Name")
 # convert clean_df to a .csv file
 clean_df.to_csv("Texas county COVID cases data clean.csv")
 
+
+
+
+#data visualisation
+
+import plotly.express as px
+#same logic as before, take the most recent csv file create in the folder
+list_of_files = glob.glob('/Users/Sully/Desktop/NewGit/Automated_interactive_dashboard/*.csv')
+latest_file = max(list_of_files, key=os.path.getmtime)
+latest_file.split("\\")[-1]
+df = pd.read_csv(latest_file.split("\\")[-1])
+
+
+# convert df into time series where rows are each date and clean up
+df_t = df.T
+df_t.columns = df_t.iloc[0]
+df_t = df_t.iloc[1:]
+df_t = df_t.iloc[:,:-2]
+# next lets convert the index to a date time, must clean up dates first
+def clean_index(s):
+    s = s.replace("*","")
+    s = s[-5:]
+    s = s + "-2020"
+    #print(s)
+    return s
+df_t.index = df_t.index.map(clean_index)
+df_t.index = pd.to_datetime(df_t.index)
+
+
