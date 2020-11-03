@@ -38,3 +38,39 @@ for file in list_of_files:
     os.remove(file)
 # Move the new file from the download dir to the github dir
 shutil.move(latest_file,'/Users/Sully/Desktop/NewGit/Automated_interactive_dashboard/')
+
+#data analysis
+import pandas as pd
+import re
+
+pd.set_option('display.max_rows', 500)
+pd.options.display.max_colwidth = 150
+# again we need to locate the .xlsx file
+list_of_files = glob.glob('/Users/Sully/Desktop/NewGit/Automated_interactive_dashboard/*.xlsx')
+latest_file = max(list_of_files, key=os.path.getctime)
+#print(latest_file.split("\\")[-1])
+df = pd.read_excel("{}".format(latest_file),header=None)
+#print(df.head())
+
+
+#dropping uneccessary data
+
+# print out latest COVID data datetime and notes
+date = re.findall("- [0-9]+/[0-9]+/[0-9]+ .+", df.iloc[0, 0])
+#print("COVID cases latest update:", date[0][2:])
+#print(df.iloc[1, 0])
+#print(str(df.iloc[262:266, 0]).lstrip().rstrip())
+#drop non-data rows
+df2 = df.drop([0, 1, 258, 260, 261, 262, 263, 264, 265, 266, 267])
+
+
+
+# clean column names
+df2.iloc[0,:] = df2.iloc[0,:].apply(lambda x: x.replace("\r", ""))
+df2.iloc[0,:] = df2.iloc[0,:].apply(lambda x: x.replace("\n", ""))
+df2.columns = df2.iloc[0]
+clean_df = df2.drop(df2.index[0])
+clean_df = clean_df.set_index("County Name")
+# convert clean_df to a .csv file
+clean_df.to_csv("Texas county COVID cases data clean.csv")
+
